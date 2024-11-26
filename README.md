@@ -1,3 +1,3 @@
-# docker-solana
+# docker-agave
 
-A Docker image for [Solana](https://github.com/solana-labs/solana) with updated `ca-certificates` and bundled with utils like `jq`, `curl`.
+A Docker image for [Solana](https://github.com/anza-xyz/agave) (previously Solana) with updated `ca-certificates` and bundled with utils like `jq`, `curl`.
