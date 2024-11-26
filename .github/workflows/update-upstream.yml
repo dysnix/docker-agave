@@ -22,15 +22,15 @@ jobs:
       id: upstream
       with:
         releases-only: true
-        regex: v1\.18\.[0-9]+$
-        repository: solana-labs/solana
+        regex: v2\.0\.[0-9]+$
+        repository: anza-xyz/agave
 
     - name: Get local tags
       uses: dysnix/find-latest-tag@v1
       id: latest
       with:
         compared-to-tag: ${{ steps.upstream.outputs.tag }}
-        regex: v1\.18\.[0-9]+$
+        regex: v2\.0\.[0-9]+$
         repository: ${{ github.repository }}
 
     - name: Update Dockerfile base
