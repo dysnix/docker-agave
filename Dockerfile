@@ -1,4 +1,4 @@
-FROM solanalabs/solana:v1.18.26
+FROM anzaxyz/agave:v2.0.17
 
 ENV DEBIAN_FRONTEND noninteractive
 
