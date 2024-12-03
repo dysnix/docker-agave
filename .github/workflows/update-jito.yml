@@ -22,7 +22,7 @@ jobs:
       id: upstream
       with:
         releases-only: true
-        regex: v1\.17\.[0-9]+\-jito$
+        regex: v2\.[0-9]+\.[0-9]+\-jito$
         repository: jito-foundation/jito-solana
 
     - name: Get local tags
@@ -30,7 +30,7 @@ jobs:
       id: latest
       with:
         compared-to-tag: ${{ steps.upstream.outputs.tag }}
-        regex: v1\.17\.[0-9]+\-jito$
+        regex: v2\.[0-9]+\.[0-9]+\-jito$
         repository: ${{ github.repository }}
 
     - name: Update Dockerfile base

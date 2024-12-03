@@ -1,4 +1,4 @@
-FROM docker-solana:v1.17.34-jito
+FROM docker-agave:v1.17.34-jito
 
 ENV DEBIAN_FRONTEND noninteractive
 

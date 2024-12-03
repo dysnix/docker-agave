@@ -25,7 +25,7 @@ jobs:
         run: |
           set -x
           CI="" ./sdk/docker-solana/build.sh
-          docker tag solanalabs/solana:"${CI_TAG}" docker-solana:"${CI_TAG}"
+          docker tag anzaxyz/agave:"${CI_TAG}" docker-agave:"${CI_TAG}"
         env:
           CI_TAG: ${{ github.ref_name }}
       - name: Checkout
