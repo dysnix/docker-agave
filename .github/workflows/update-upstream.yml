@@ -22,7 +22,7 @@ jobs:
       id: upstream
       with:
         releases-only: true
-        regex: v2\.0\.[0-9]+$
+        regex: v2\.1\.[0-9]+$
         repository: anza-xyz/agave
 
     - name: Get local tags
@@ -30,7 +30,7 @@ jobs:
       id: latest
       with:
         compared-to-tag: ${{ steps.upstream.outputs.tag }}
-        regex: v2\.0\.[0-9]+$
+        regex: v2\.1\.[0-9]+$
         repository: ${{ github.repository }}
 
     - name: Update Dockerfile base
