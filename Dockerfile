@@ -1,4 +1,4 @@
-FROM anzaxyz/agave:v2.2.3
+FROM anzaxyz/agave:v2.1.17
 
 ENV DEBIAN_FRONTEND noninteractive
 
