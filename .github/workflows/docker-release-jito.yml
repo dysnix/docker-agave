@@ -24,7 +24,7 @@ jobs:
       - name: Build Jito-solana
         run: |
           set -x
-          CI="" ./sdk/docker-solana/build.sh
+          CI="" ./docker-solana/build.sh
           docker tag anzaxyz/agave:"${CI_TAG}" docker-agave:"${CI_TAG}"
         env:
           CI_TAG: ${{ github.ref_name }}
