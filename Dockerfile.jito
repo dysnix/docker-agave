@@ -1,4 +1,4 @@
-FROM docker-agave:v2.2.14-jito
+FROM docker-agave:v2.2.15-jito
 
 ENV DEBIAN_FRONTEND noninteractive
 
