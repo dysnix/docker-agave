@@ -5,7 +5,7 @@ on:
     - cron: "0 0 * * *"
 
 env:
-  AGAVE_VERSION_REGEX: "v2\\.2\\.[0-9]+$"
+  AGAVE_VERSION_REGEX: "v2\\.3\\.[0-9]+$"
 
 jobs:
   publish:
