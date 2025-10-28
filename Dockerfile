@@ -16,9 +16,9 @@ RUN apt-get update -y && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-ARG AGAVE_VERSION=3.0.8
+ARG AGAVE_VERSION=v3.0.8
 ARG AGAVE_REPO=anza-xyz/agave
-ENV AGAVE_DOWNLOAD_URL=https://github.com/${AGAVE_REPO}/archive/refs/tags/v${AGAVE_VERSION}.tar.gz
+ENV AGAVE_DOWNLOAD_URL=https://github.com/${AGAVE_REPO}/archive/refs/tags/${AGAVE_VERSION}.tar.gz
 
 ADD ${AGAVE_DOWNLOAD_URL} ./agave.tar.gz
 RUN tar --strip-components=1 -zxvf agave.tar.gz -C /agave
