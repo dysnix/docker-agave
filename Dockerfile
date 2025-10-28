@@ -17,9 +17,10 @@ RUN apt-get update -y && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 ARG AGAVE_VERSION=3.0.8
-ENV AGAVE_VERSION=${AGAVE_VERSION}
+ARG AGAVE_REPO=anza-xyz/agave
+ENV AGAVE_DOWNLOAD_URL=https://github.com/${AGAVE_REPO}/archive/refs/tags/v${AGAVE_VERSION}.tar.gz
 
-ADD https://github.com/anza-xyz/agave/archive/refs/tags/v${AGAVE_VERSION}.tar.gz ./agave.tar.gz
+ADD ${AGAVE_DOWNLOAD_URL} ./agave.tar.gz
 RUN tar --strip-components=1 -zxvf agave.tar.gz -C /agave
 RUN ./scripts/cargo-install-all.sh .
 
