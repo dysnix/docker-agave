@@ -12,6 +12,10 @@ jobs:
   fetch:
     name: Fetch new tag
     runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.latest.outputs.tag }}
+      upstream_tag: ${{ steps.upstream.outputs.tag }}
+      newer: ${{ steps.latest.outputs.newer }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -32,11 +36,6 @@ jobs:
         regex: ${{ env.AGAVE_VERSION_REGEX }}
         repository: ${{ github.repository }}
 
-    outputs:
-      tag: ${{ steps.latest.outputs.tag }}
-      upstream_tag: ${{ steps.upstream.outputs.tag }}
-      newer: ${{ steps.latest.outputs.newer }}
-
   docker:
     needs: [fetch]
     if: needs.fetch.outputs.newer == 'true' || needs.fetch.outputs.tag == ''
@@ -44,6 +43,8 @@ jobs:
     permissions:
       contents: write
       packages: write
+    outputs:
+      docker_tags: ${{ steps.meta.outputs.tags }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -78,6 +79,17 @@ jobs:
           AGAVE_VERSION=${{ needs.fetch.outputs.upstream_tag }}
           AGAVE_REPO=${{ env.AGAVE_REPO }}
 
+  release:
+    needs: [fetch, docker]
+    if: needs.fetch.outputs.newer == 'true' || needs.fetch.outputs.tag == ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
     - name: Release
       uses: ncipollo/release-action@v1
       with:
@@ -85,8 +97,9 @@ jobs:
         tag: ${{ needs.fetch.outputs.upstream_tag }}
         commit: ${{ github.sha }}
         generateReleaseNotes: true
+        allowUpdates: true
         body: |
           ## Docker images
           ```
-          ${{ steps.meta.outputs.tags }}
+          ${{ needs.docker.outputs.docker_tags }}
           ```
