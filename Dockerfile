@@ -38,7 +38,7 @@ RUN git init && \
     git submodule update --init --force --depth=1 --recursive
 
 # build all binaries
-RUN ./scripts/cargo-install-all.sh .
+RUN ./scripts/cargo-install-all.sh --validator-only .
 
 # create a minimal base image
 FROM debian:bookworm-slim
