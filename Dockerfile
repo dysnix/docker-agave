@@ -9,6 +9,7 @@ RUN apt-get update -y && apt-get install -y \
     build-essential \
     pkg-config \
     wget \
+    curl \
     libudev-dev \
     llvm \
     libclang-dev \
