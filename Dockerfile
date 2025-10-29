@@ -15,16 +15,32 @@ RUN apt-get update -y && apt-get install -y \
     libclang-dev \
     protobuf-compiler \
     libssl-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 ARG AGAVE_VERSION=v3.0.8
 ARG AGAVE_REPO=anza-xyz/agave
-ENV AGAVE_DOWNLOAD_URL=https://github.com/${AGAVE_REPO}/archive/refs/tags/${AGAVE_VERSION}.tar.gz
 
-ADD ${AGAVE_DOWNLOAD_URL} ./agave.tar.gz
-RUN tar --strip-components=1 -zxvf agave.tar.gz -C /agave
+# clone repository and checkout specific version
+RUN git init && \
+    git remote add origin https://github.com/${AGAVE_REPO}.git && \
+    git fetch \
+        --no-tags \
+        --prune \
+        --progress \
+        --no-recurse-submodules \
+        --depth=1 \
+        origin \
+        +refs/heads/${AGAVE_VERSION}*:refs/remotes/origin/${AGAVE_VERSION}* \
+        +refs/tags/${AGAVE_VERSION}*:refs/tags/${AGAVE_VERSION}* && \
+    git checkout --progress --force refs/tags/${AGAVE_VERSION} && \
+    git submodule sync --recursive && \
+    git submodule update --init --force --depth=1 --recursive
+
+# build all binaries
 RUN ./scripts/cargo-install-all.sh .
 
+# create a minimal base image
 FROM debian:bookworm-slim
 
 RUN apt-get update -y && apt-get install -y \
