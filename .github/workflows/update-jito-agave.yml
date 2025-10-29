@@ -79,7 +79,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         name: ${{ github.event.repository.name }} ${{ needs.fetch.outputs.upstream_tag }}
-        tag: ${{ needs.fetch.outputs.tag }}
+        tag: ${{ needs.fetch.outputs.upstream_tag }}
         commit: ${{ github.sha }}
         generateReleaseNotes: true
         body: |
