@@ -40,11 +40,27 @@ jobs:
     needs: [fetch]
     if: needs.fetch.outputs.newer == 'true' || needs.fetch.outputs.tag == ''
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+        - name: default
+          tag_suffix: ""
+          latest_tag: latest-jito
+          rust_target_cpu: ""
+          patch_sha256_poh: ""
+        - name: znver4
+          tag_suffix: -znver4
+          latest_tag: latest-jito-znver4
+          rust_target_cpu: znver4
+          patch_sha256_poh: true
+        - name: znver5
+          tag_suffix: -znver5
+          latest_tag: latest-jito-znver5
+          rust_target_cpu: znver5
+          patch_sha256_poh: true
     permissions:
       contents: write
       packages: write
-    outputs:
-      docker_tags: ${{ steps.meta.outputs.tags }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -66,8 +82,8 @@ jobs:
         images: |
           ghcr.io/${{ github.repository }}
         tags: |
-          type=raw,value=${{ needs.fetch.outputs.upstream_tag }}
-          type=raw,value=latest-jito
+          type=raw,value=${{ needs.fetch.outputs.upstream_tag }}${{ matrix.tag_suffix }}
+          type=raw,value=${{ matrix.latest_tag }}
 
     - name: Build and push
       uses: docker/build-push-action@v5
@@ -78,54 +94,11 @@ jobs:
         build-args: |
           AGAVE_VERSION=${{ needs.fetch.outputs.upstream_tag }}
           AGAVE_REPO=${{ env.AGAVE_REPO }}
-
-  docker_znver4:
-    needs: [fetch]
-    if: needs.fetch.outputs.newer == 'true' || needs.fetch.outputs.tag == ''
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-    outputs:
-      docker_tags: ${{ steps.meta.outputs.tags }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Docker login
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Docker meta
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: |
-          ghcr.io/${{ github.repository }}
-        tags: |
-          type=raw,value=${{ needs.fetch.outputs.upstream_tag }}-znver4
-          type=raw,value=latest-jito-znver4
-
-    - name: Build and push
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        build-args: |
-          AGAVE_VERSION=${{ needs.fetch.outputs.upstream_tag }}
-          AGAVE_REPO=${{ env.AGAVE_REPO }}
-          RUST_TARGET_CPU=znver4
-          PATCH_SHA256_POH=true
+          RUST_TARGET_CPU=${{ matrix.rust_target_cpu }}
+          PATCH_SHA256_POH=${{ matrix.patch_sha256_poh }}
 
   release:
-    needs: [fetch, docker, docker_znver4]
+    needs: [fetch, docker]
     if: needs.fetch.outputs.newer == 'true' || needs.fetch.outputs.tag == ''
     runs-on: ubuntu-latest
     permissions:
@@ -146,6 +119,10 @@ jobs:
         body: |
           ## Docker images
           ```
-          ${{ needs.docker.outputs.docker_tags }}
-          ${{ needs.docker_znver4.outputs.docker_tags }}
+          ghcr.io/${{ github.repository }}:${{ needs.fetch.outputs.upstream_tag }}
+          ghcr.io/${{ github.repository }}:latest-jito
+          ghcr.io/${{ github.repository }}:${{ needs.fetch.outputs.upstream_tag }}-znver4
+          ghcr.io/${{ github.repository }}:latest-jito-znver4
+          ghcr.io/${{ github.repository }}:${{ needs.fetch.outputs.upstream_tag }}-znver5
+          ghcr.io/${{ github.repository }}:latest-jito-znver5
           ```
