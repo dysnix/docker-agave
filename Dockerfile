@@ -37,8 +37,24 @@ RUN git init && \
     git submodule sync --recursive && \
     git submodule update --init --force --depth=1 --recursive
 
+ARG PATCH_SHA256_POH
+ENV PATCH_SHA256_POH ${PATCH_SHA256_POH}
+# use patched sha256 hasher
+RUN if [ "${PATCH_SHA256_POH}" = "true" ]; then \
+        git clone https://github.com/kagren/solana-sha256-hasher-optimized optimized_sha256 && \
+        sed -i '/^members = \[$/a\    "optimized_sha256",' Cargo.toml && \
+        sed -i '/^\[dependencies\]$/a optimized_sha256 = { path = "../optimized_sha256", package = "solana-sha256-hasher" }' entry/Cargo.toml && \
+        sed -i 's|hashv(&\[self.hash.as_ref(), mixin.as_ref()\])|optimized_sha256::hashv(\&[self.hash.as_ref(), mixin.as_ref()])|' entry/src/poh.rs; \
+    fi
+
 # build all binaries
-RUN ./scripts/cargo-install-all.sh --validator-only .
+ARG RUST_TARGET_CPU
+ENV RUST_TARGET_CPU ${RUST_TARGET_CPU}
+RUN if [ "${RUST_TARGET_CPU}" != "" ]; then \
+        export CARGO_BUILD_TARGET="x86_64-unknown-linux-gnu"; \
+        export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="-C target-cpu=${RUST_TARGET_CPU}"; \
+    fi; \
+    ./scripts/cargo-install-all.sh --validator-only --no-spl-token .
 
 # create a minimal base image
 FROM debian:bookworm-slim
