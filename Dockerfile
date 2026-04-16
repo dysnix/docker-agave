@@ -58,7 +58,7 @@ RUN if [ "${RUST_TARGET_CPU}" != "" ]; then \
         ln -sfn x86_64-unknown-linux-gnu/release target/release && \
         ln -sfn x86_64-unknown-linux-gnu/debug target/debug && \
         ln -sfn x86_64-unknown-linux-gnu/release dev-bins/target/release && \
-        ln -sfn x86_64-unknown-linux-gnu/debug dev-bins/target/debug \
+        ln -sfn x86_64-unknown-linux-gnu/debug dev-bins/target/debug; \
     fi && \
     ./scripts/cargo-install-all.sh --validator-only --no-spl-token .
 
