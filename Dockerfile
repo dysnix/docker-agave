@@ -38,7 +38,7 @@ RUN git init && \
     git submodule update --init --force --depth=1 --recursive
 
 ARG PATCH_SHA256_POH
-ENV PATCH_SHA256_POH ${PATCH_SHA256_POH}
+ENV PATCH_SHA256_POH=${PATCH_SHA256_POH}
 # use patched sha256 hasher
 RUN if [ "${PATCH_SHA256_POH}" = "true" ]; then \
         git clone https://github.com/kagren/solana-sha256-hasher-optimized optimized_sha256 && \
@@ -49,10 +49,16 @@ RUN if [ "${PATCH_SHA256_POH}" = "true" ]; then \
 
 # build all binaries
 ARG RUST_TARGET_CPU
-ENV RUST_TARGET_CPU ${RUST_TARGET_CPU}
+ENV RUST_TARGET_CPU=${RUST_TARGET_CPU}
 RUN if [ "${RUST_TARGET_CPU}" != "" ]; then \
+        # Explicitly pin the target for emulated linux/amd64 builds where proc-macro resolution can be flaky.
         export CARGO_BUILD_TARGET="x86_64-unknown-linux-gnu"; \
         export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS="-C target-cpu=${RUST_TARGET_CPU}"; \
+        mkdir -p target dev-bins/target && \
+        ln -sfn x86_64-unknown-linux-gnu/release target/release && \
+        ln -sfn x86_64-unknown-linux-gnu/debug target/debug && \
+        ln -sfn x86_64-unknown-linux-gnu/release dev-bins/target/release && \
+        ln -sfn x86_64-unknown-linux-gnu/debug dev-bins/target/debug && \
     fi; \
     ./scripts/cargo-install-all.sh --validator-only --no-spl-token .
 
