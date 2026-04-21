@@ -1,4 +1,4 @@
-name: Update from upstream
+name: Update from upstream - v4
 on:
   workflow_dispatch:
   schedule:
