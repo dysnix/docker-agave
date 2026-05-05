@@ -1,5 +1,5 @@
 ARG RUST_VERSION=1.93.1
-FROM rust:${RUST_VERSION}-slim-bookworm AS build
+FROM rust:${RUST_VERSION}-slim-trixie AS build
 
 WORKDIR /agave
 
@@ -54,7 +54,7 @@ RUN if [ "${RUST_TARGET_CPU}" != "" ]; then \
         .
 
 # create a minimal base image
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 RUN apt-get update -y && apt-get install -y \
     ca-certificates \
