@@ -72,6 +72,6 @@ RUN apt-get update -y && apt-get install -y \
     jq \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=prepare /agave/bin/ /usr/local/bin/
+COPY --from=build /agave/bin/ /usr/local/bin/
 
 ENTRYPOINT ["agave-validator"]

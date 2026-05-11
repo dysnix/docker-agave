@@ -5,7 +5,7 @@ on:
     - cron: "0 0 * * *"
 
 env:
-  AGAVE_VERSION_REGEX: "v4\\.[0-9]+\\.[0-9]+.+-jito$"
+  AGAVE_VERSION_REGEX: "v4\\.[0-9]+\\.[0-9]+.*-jito$"
   AGAVE_REPO: jito-foundation/jito-solana
 
 jobs:
