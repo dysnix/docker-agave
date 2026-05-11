@@ -1,5 +1,5 @@
 ARG RUST_VERSION=1.86.0
-FROM rust:${RUST_VERSION}-slim-bookworm AS build
+FROM rust:${RUST_VERSION}-slim-bookworm AS prepare
 
 WORKDIR /agave
 
@@ -37,15 +37,15 @@ RUN git init && \
     git submodule sync --recursive && \
     git submodule update --init --force --depth=1 --recursive
 
-ARG PATCH_SHA256_POH
-ENV PATCH_SHA256_POH=${PATCH_SHA256_POH}
+ARG PATCH_SHA256
+ENV PATCH_SHA256=${PATCH_SHA256}
 # use patched sha256 hasher
-RUN if [ "${PATCH_SHA256_POH}" = "true" ]; then \
-        git clone https://github.com/kagren/solana-sha256-hasher-optimized optimized_sha256 && \
-        sed -i '/^members = \[$/a\    "optimized_sha256",' Cargo.toml && \
-        sed -i '/^\[dependencies\]$/a optimized_sha256 = { path = "../optimized_sha256", package = "solana-sha256-hasher" }' entry/Cargo.toml && \
-        sed -i 's|hashv(&\[self.hash.as_ref(), mixin.as_ref()\])|optimized_sha256::hashv(\&[self.hash.as_ref(), mixin.as_ref()])|' entry/src/poh.rs; \
+RUN if [ "${PATCH_SHA256}" = "true" ]; then \
+        git clone https://github.com/dysnix/solana-sha256-hasher-optimized ../sha256-hasher && \
+        sed -i '/^\[patch.crates-io\]$/a\solana-sha256-hasher = { path = "../sha256-hasher" }' Cargo.toml; \
     fi
+
+FROM prepare AS build
 
 # build all binaries
 ARG RUST_TARGET_CPU

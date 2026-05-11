@@ -47,10 +47,7 @@ jobs:
           tag_suffix: ""
           latest_tag: latest-jito
           rust_target_cpu: ""
-        - name: znver5
-          tag_suffix: -znver5
-          latest_tag: latest-jito-znver5
-          rust_target_cpu: znver5
+          patch_sha256: "true"
     permissions:
       contents: write
       packages: write
@@ -88,7 +85,7 @@ jobs:
         build-args: |
           AGAVE_VERSION=${{ needs.fetch.outputs.upstream_tag }}
           AGAVE_REPO=${{ env.AGAVE_REPO }}
-          RUST_TARGET_CPU=${{ matrix.rust_target_cpu }}
+          PATCH_SHA256=${{ matrix.patch_sha256 }}
 
   release:
     needs: [fetch, docker]
@@ -114,6 +111,4 @@ jobs:
           ```
           ghcr.io/${{ github.repository }}:${{ needs.fetch.outputs.upstream_tag }}
           ghcr.io/${{ github.repository }}:latest-jito
-          ghcr.io/${{ github.repository }}:${{ needs.fetch.outputs.upstream_tag }}-znver5
-          ghcr.io/${{ github.repository }}:latest-jito-znver5
           ```

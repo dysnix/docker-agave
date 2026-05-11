@@ -1,5 +1,5 @@
 ARG RUST_VERSION=1.93.1
-FROM rust:${RUST_VERSION}-slim-trixie AS build
+FROM rust:${RUST_VERSION}-slim-trixie AS prepare
 
 WORKDIR /agave
 
@@ -38,6 +38,15 @@ RUN git init && \
     git submodule sync --recursive && \
     git submodule update --init --force --depth=1 --recursive
 
+ARG PATCH_SHA256
+ENV PATCH_SHA256=${PATCH_SHA256}
+# use patched sha256 hasher
+RUN if [ "${PATCH_SHA256}" = "true" ]; then \
+        git clone https://github.com/dysnix/solana-sha256-hasher-optimized ../sha256-hasher && \
+        sed -i '/^\[patch.crates-io\]$/a\solana-sha256-hasher = { path = "../sha256-hasher" }' Cargo.toml; \
+    fi
+
+FROM prepare AS build
 # build all binaries
 ARG RUST_TARGET_CPU
 ENV RUST_TARGET_CPU=${RUST_TARGET_CPU}
@@ -51,6 +60,7 @@ RUN if [ "${RUST_TARGET_CPU}" != "" ]; then \
         --no-build-deprecated-bins \
         --no-build-dev-bins \
         --no-build-platform-tools \
+        --no-build-dcou-bins \
         .
 
 # create a minimal base image
@@ -62,6 +72,6 @@ RUN apt-get update -y && apt-get install -y \
     jq \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /agave/bin/ /usr/local/bin/
+COPY --from=prepare /agave/bin/ /usr/local/bin/
 
 ENTRYPOINT ["agave-validator"]
