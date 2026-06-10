@@ -1,15 +1,15 @@
-name: Update from upstream - v4
+name: Update from upstream - v4 unstable
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
 
 concurrency:
-  group: update-agave-v4-stable
+  group: update-agave-v4-unstable
   cancel-in-progress: false
 
 env:
-  AGAVE_VERSION_REGEX: "^v4\\.[0-9]+\\.[0-9]+$"
+  AGAVE_VERSION_REGEX: "^v4\\.[0-9]+\\.[0-9]+-(alpha|beta|rc)\\.[0-9]+$"
   AGAVE_REPO: anza-xyz/agave
 
 jobs:
@@ -52,7 +52,7 @@ jobs:
         include:
           - name: default
             tag_suffix: ""
-            latest_tag: latest
+            latest_tag: latest-unstable
             rust_target_cpu: ""
             patch_sha256: "true"
     permissions:
@@ -114,9 +114,11 @@ jobs:
           commit: ${{ github.sha }}
           generateReleaseNotes: true
           allowUpdates: true
+          prerelease: true
+          makeLatest: false
           body: |
             ## Docker images
             ```
             ghcr.io/${{ github.repository }}:${{ needs.fetch.outputs.upstream_tag }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:latest-unstable
             ```

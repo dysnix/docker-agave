@@ -1,16 +1,16 @@
-name: Update from upstream - v4
+name: Update from upstream - jito v4 unstable
 on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
 
 concurrency:
-  group: update-agave-v4-stable
+  group: update-jito-agave-v4-unstable
   cancel-in-progress: false
 
 env:
-  AGAVE_VERSION_REGEX: "^v4\\.[0-9]+\\.[0-9]+$"
-  AGAVE_REPO: anza-xyz/agave
+  AGAVE_VERSION_REGEX: "^v4\\.[0-9]+\\.[0-9]+-(alpha|beta|rc)\\.[0-9]+-jito$"
+  AGAVE_REPO: jito-foundation/jito-solana
 
 jobs:
   fetch:
@@ -52,7 +52,7 @@ jobs:
         include:
           - name: default
             tag_suffix: ""
-            latest_tag: latest
+            latest_tag: latest-jito-unstable
             rust_target_cpu: ""
             patch_sha256: "true"
     permissions:
@@ -92,7 +92,6 @@ jobs:
           build-args: |
             AGAVE_VERSION=${{ needs.fetch.outputs.upstream_tag }}
             AGAVE_REPO=${{ env.AGAVE_REPO }}
-            RUST_TARGET_CPU=${{ matrix.rust_target_cpu }}
             PATCH_SHA256=${{ matrix.patch_sha256 }}
 
   release:
@@ -114,9 +113,11 @@ jobs:
           commit: ${{ github.sha }}
           generateReleaseNotes: true
           allowUpdates: true
+          prerelease: true
+          makeLatest: false
           body: |
             ## Docker images
             ```
             ghcr.io/${{ github.repository }}:${{ needs.fetch.outputs.upstream_tag }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:latest-jito-unstable
             ```
