@@ -72,6 +72,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Fetch Rust version
+        id: rust
+        run: |
+          rust_version="$(
+            curl -fsSL "https://raw.githubusercontent.com/${AGAVE_REPO}/${AGAVE_VERSION}/rust-toolchain.toml" \
+              | sed -nE 's/^[[:space:]]*channel[[:space:]]*=[[:space:]]*"([^"]+)".*/\1/p' \
+              | head -n1
+          )"
+          case "${rust_version}" in
+            ""|*[!a-zA-Z0-9._-]*)
+              echo "Invalid Rust channel in upstream rust-toolchain.toml: ${rust_version}" >&2
+              exit 1
+              ;;
+          esac
+          echo "version=${rust_version}" >> "${GITHUB_OUTPUT}"
+        env:
+          AGAVE_REPO: ${{ env.AGAVE_REPO }}
+          AGAVE_VERSION: ${{ needs.fetch.outputs.upstream_tag }}
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
@@ -92,6 +111,7 @@ jobs:
           build-args: |
             AGAVE_VERSION=${{ needs.fetch.outputs.upstream_tag }}
             AGAVE_REPO=${{ env.AGAVE_REPO }}
+            RUST_VERSION=${{ steps.rust.outputs.version }}
             PATCH_SHA256=${{ matrix.patch_sha256 }}
 
   release:
